@@ -1,15 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Image Gallery</title>
+    <title>Inpaint Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .image-container img {
+            max-width: 256px;
+            max-height: 256px;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .full-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .full-screen img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .image-container img:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
-    <h1>Image Gallery</h1>
+    <h1>Inpaint Result</h1>
 
     <div class="image-container">
-        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
-        <img src="{{ url_for('uploaded_file', filename=result) }}" alt="Result Image">
+        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" class="clickable-image">
+        <img src="{{ url_for('uploaded_file', filename=result) }}" alt="Result Image" class="clickable-image">
         <img src="{{ url_for('uploaded_file', filename=masked) }}" alt="Masked Image" id="masked-image">
     </div>
+
+    <script>
+        const clickableImages = document.querySelectorAll(".clickable-image");
+
+        clickableImages.forEach(image => {
+            image.addEventListener("click", () => {
+                createFullScreenView(image.src);
+            });
+        });
+
+        const maskedImage = document.getElementById("masked-image");
+
+        maskedImage.addEventListener("click", () => {
+            createFullScreenView(maskedImage.src);
+        });
+
+        function createFullScreenView(imageSrc) {
+            // Create a full-screen view
+            const fullScreenView = document.createElement("div");
+            fullScreenView.classList.add("full-screen");
+
+            const fullScreenImage = document.createElement("img");
+            fullScreenImage.src = imageSrc;
+
+            fullScreenView.appendChild(fullScreenImage);
+
+            fullScreenView.addEventListener("click", () => {
+                // Close the full-screen view on click
+                fullScreenView.remove();
+            });
+
+            document.body.appendChild(fullScreenView);
+        }
+    </script>
 </body>
 </html>

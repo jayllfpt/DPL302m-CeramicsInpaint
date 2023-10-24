@@ -26,7 +26,7 @@
 
     <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
 
-    <title>CodePen - CroppieJS - Upload and Crop</title>
+    <title>Inpaint - Upload</title>
 
     <link rel="canonical" href="https://codepen.io/chanonroy/pen/xXKPzR" />
 
@@ -38,7 +38,7 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
+        background-color: #f5f5f5;
       }
 
       h1 {
@@ -46,24 +46,66 @@
         color: #333;
       }
 
-      .container {
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
       .crop-container {
         width: 350px;
         height: 350px;
+        margin: 20px auto;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      #upload-demo {
+        height: 100%;
+      }
+
+      input.item-img {
+        display: none;
+      }
+
+      .upload-button {
+        display: block;
+        margin: 20px auto;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .upload-button:hover {
+        background-color: #0056b3;
+      }
+
+      .image-output {
+        text-align: center;
       }
 
       #item-img-output {
         height: 220px;
+        border: 1px solid lightgrey;
         border-radius: 3px;
+        margin: 20px 0;
+        display: block;
+      }
+
+      #small-item-img-output {
+        height: 120px;
+      }
+
+      #xs-item-img-output {
+        height: 40px;
+      }
+
+      h3 {
+        text-align: center;
+        color: #333;
+      }
+      #hiddenContent {
+        display: none;
       }
     </style>
 
@@ -74,87 +116,99 @@
   <body translate="no">
     <h1>CroppieJS</h1>
     <form action="/inpaint" method="post" enctype="multipart/form-data">
-      <input type="file" name="image" class="item-img" accept="image/*" />
+      <label for="image" class="upload-button">Upload Image</label>
+      <input
+        type="file"
+        name="image"
+        id="image"
+        class="item-img"
+        accept="image/*"
+      />
       <div>Must be under 5MB</div>
-      <button id="cropImage">Crop</button>
-      <div class="crop-container">
-        <div id="upload-demo"></div>
+      <button id="cropImage" class="upload-button">Crop</button>
+      <div id="hiddenContent">
+        <div class="crop-container">
+          <div id="upload-demo"></div>
+        </div>
+        <br />
+        <h3>Result</h3>
+        <span class="image-output">
+          <img src="" alt="" id="item-img-output" />
+        </span>
+        <input type="hidden" name="croppedImage" id="croppedImage" value="" />
       </div>
-      <br />
-      <h3>Result</h3>
-      <span class="image-output">
-        <img
-          src=""
-          alt=""
-          id="item-img-output"
-          style="border: 1px solid lightgrey"
-        />
-      </span>
-      <input type="hidden" name="croppedImage" id="croppedImage" value="" />
     </form>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="https://foliotek.github.io/Croppie/croppie.js"></script>
     <script>
-      var rawImg = "";
-      var imgFormat = "";
-      var $uploadCrop;
+          var rawImg = "";
+          var imgFormat = "";
+          var $uploadCrop;
 
-      function readFile(input) {
-        if (input.files && input.files[0]) {
-          console.log(input.files[0].type);
+          function readFile(input) {
+            if (input.files && input.files[0]) {
+              console.log(input.files[0].type);
 
-          var file_size = input.files[0].size / 1024 / 1024;
+              var file_size = input.files[0].size / 1024 / 1024;
 
-          if (file_size >= 5) {
-            alert("File is over 5MB.");
-            return;
+              if (file_size >= 5) {
+                alert("File is over 5MB.");
+                return;
+              }
+
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                rawImg = e.target.result;
+                $(".upload-demo").addClass("ready");
+                bindCroppie();
+              };
+              reader.readAsDataURL(input.files[0]);
+            }
           }
 
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            rawImg = e.target.result;
-            $(".upload-demo").addClass("ready");
-            bindCroppie();
-          };
-          reader.readAsDataURL(input.files[0]);
-        }
-      }
+          function bindCroppie() {
+            $uploadCrop = $("#upload-demo").croppie({
+              viewport: {
+                width: 250,
+                height: 250,
+              },
+              enforceBoundary: false,
+              enableExif: true,
+            });
+            $uploadCrop.croppie("bind", {
+              url: rawImg,
+            });
+          }
 
-      function bindCroppie() {
-        $uploadCrop = $("#upload-demo").croppie({
-          viewport: {
-            width: 250,
-            height: 250,
-          },
-          enforceBoundary: false,
-          enableExif: true,
-        });
-        $uploadCrop.croppie("bind", {
-          url: rawImg,
-        });
-      }
-
-      $("#cropImage").on("click", function () {
-        useCroppie();
-      });
-
-      function useCroppie() {
-        $uploadCrop
-          .croppie("result", {
-            type: "base64",
-            format: "png",
-            size: "original",
-          })
-          .then(function (resp) {
-            $("#item-img-output").attr("src", resp);
-            $("#croppedImage").val(resp); // Set the cropped image as a hidden input value
+          $("#cropImage").on("click", function () {
+            useCroppie();
           });
-      }
 
-      $(".item-img").on("change", function () {
-        readFile(this);
-      });
+          function useCroppie() {
+            $uploadCrop
+              .croppie("result", {
+                type: "base64",
+                format: "png",
+                size: "original",
+              })
+              .then(function (resp) {
+                $("#item-img-output").attr("src", resp);
+                $("#croppedImage").val(resp); // Set the cropped image as a hidden input value
+              });
+          }
+
+          $(".item-img").on("change", function () {
+            readFile(this);
+          });
+
+          const imageInput = document.getElementById("image");
+
+          imageInput.addEventListener("change", () => {
+          // Check if a file has been selected
+          if (imageInput.files.length > 0) {
+            hiddenContent.style.display = "block"; // Show the hidden content
+          }});
     </script>
   </body>
 </html>
