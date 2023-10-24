@@ -60,7 +60,7 @@ class GaussianBlurLayer(nn.Module):
     def forward(self, x):
         kernel = gauss_kernel(self.size, self.sigma, self.ch, self.ch)
         kernel_tensor = torch.from_numpy(kernel)
-        kernel_tensor = kernel_tensor.cuda()
+        kernel_tensor = kernel_tensor.cpu()
         x = self.pad(x)
         blurred = F.conv2d(x, kernel_tensor, stride=self.stride)
         return blurred
@@ -149,8 +149,8 @@ class VGG19FeatLayer(nn.Module):
         vgg = models.vgg19(pretrained=False)
         # state_dict = torch.load(r"checkpoints\yesure\40_net_DFBN.pth")
         # vgg.load_state_dict(state_dict)
-        self.vgg19 = vgg.features.eval().cuda()
-        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).cuda()
+        self.vgg19 = vgg.features.eval().cpu()
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).cpu()
 
     def forward(self, x):
         out = {}

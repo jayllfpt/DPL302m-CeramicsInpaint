@@ -18,7 +18,7 @@ class WGANLoss(nn.Module):
 
 def gradient_penalty(xin, yout, mask=None):
     gradients = autograd.grad(yout, xin, create_graph=True,
-                              grad_outputs=torch.ones(yout.size()).cuda(), retain_graph=True, only_inputs=True)[0]
+                              grad_outputs=torch.ones(yout.size()).cpu(), retain_graph=True, only_inputs=True)[0]
     if mask is not None:
         gradients = gradients * mask
     gradients = gradients.view(gradients.size(0), -1)
@@ -28,8 +28,8 @@ def gradient_penalty(xin, yout, mask=None):
 
 def random_interpolate(gt, pred):
     batch_size = gt.size(0)
-    alpha = torch.rand(batch_size, 1, 1, 1).cuda()
-    # alpha = alpha.expand(gt.size()).cuda()
+    alpha = torch.rand(batch_size, 1, 1, 1).cpu()
+    # alpha = alpha.expand(gt.size()).cpu()
     interpolated = gt * alpha + pred * (1 - alpha)
     return interpolated
 
@@ -47,7 +47,7 @@ class VGGLoss(nn.Module):
         self.align_loss, self.guided_loss, self.fm_vgg_loss = None, None, None
         self.avg_pool = nn.AvgPool2d(2, 2)
         self.coord_y, self.coord_x = torch.meshgrid(torch.arange(-1, 1, 1 / 8), torch.arange(-1, 1, 1 / 8))
-        self.coord_y, self.coord_x = self.coord_y.cuda(), self.coord_x.cuda()
+        self.coord_y, self.coord_x = self.coord_y.cpu(), self.coord_x.cpu()
 
     def sum_normalize(self, featmaps):
         reduce_sum = torch.sum(featmaps, dim=1, keepdim=True)

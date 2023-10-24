@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Gallery</title>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+
+    <div class="image-container">
+        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
+        <img src="{{ url_for('uploaded_file', filename=result) }}" alt="Result Image">
+        <img src="{{ url_for('uploaded_file', filename=masked) }}" alt="Masked Image" id="masked-image">
+    </div>
+</body>
+</html>

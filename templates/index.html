@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <link
+      rel="apple-touch-icon"
+      type="image/png"
+      href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png"
+    />
+
+    <meta name="apple-mobile-web-app-title" content="CodePen" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico"
+    />
+
+    <link
+      rel="mask-icon"
+      type="image/x-icon"
+      href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-b4b4269c16397ad2f0f7a01bcdf513a1994f4c94b8af2f191c09eb0d601762b1.svg"
+      color="#111"
+    />
+
+    <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
+
+    <title>CodePen - CroppieJS - Upload and Crop</title>
+
+    <link rel="canonical" href="https://codepen.io/chanonroy/pen/xXKPzR" />
+
+    <link
+      rel="stylesheet"
+      href="https://foliotek.github.io/Croppie/croppie.css"
+    />
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .crop-container {
+        width: 350px;
+        height: 350px;
+      }
+
+      #item-img-output {
+        height: 220px;
+        border-radius: 3px;
+      }
+    </style>
+
+    <script>
+      window.console = window.console || function (t) {};
+    </script>
+  </head>
+  <body translate="no">
+    <h1>CroppieJS</h1>
+    <form action="/inpaint" method="post" enctype="multipart/form-data">
+      <input type="file" name="image" class="item-img" accept="image/*" />
+      <div>Must be under 5MB</div>
+      <button id="cropImage">Crop</button>
+      <div class="crop-container">
+        <div id="upload-demo"></div>
+      </div>
+      <br />
+      <h3>Result</h3>
+      <span class="image-output">
+        <img
+          src=""
+          alt=""
+          id="item-img-output"
+          style="border: 1px solid lightgrey"
+        />
+      </span>
+      <input type="hidden" name="croppedImage" id="croppedImage" value="" />
+    </form>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://foliotek.github.io/Croppie/croppie.js"></script>
+    <script>
+      var rawImg = "";
+      var imgFormat = "";
+      var $uploadCrop;
+
+      function readFile(input) {
+        if (input.files && input.files[0]) {
+          console.log(input.files[0].type);
+
+          var file_size = input.files[0].size / 1024 / 1024;
+
+          if (file_size >= 5) {
+            alert("File is over 5MB.");
+            return;
+          }
+
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            rawImg = e.target.result;
+            $(".upload-demo").addClass("ready");
+            bindCroppie();
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function bindCroppie() {
+        $uploadCrop = $("#upload-demo").croppie({
+          viewport: {
+            width: 250,
+            height: 250,
+          },
+          enforceBoundary: false,
+          enableExif: true,
+        });
+        $uploadCrop.croppie("bind", {
+          url: rawImg,
+        });
+      }
+
+      $("#cropImage").on("click", function () {
+        useCroppie();
+      });
+
+      function useCroppie() {
+        $uploadCrop
+          .croppie("result", {
+            type: "base64",
+            format: "png",
+            size: "original",
+          })
+          .then(function (resp) {
+            $("#item-img-output").attr("src", resp);
+            $("#croppedImage").val(resp); // Set the cropped image as a hidden input value
+          });
+      }
+
+      $(".item-img").on("change", function () {
+        readFile(this);
+      });
+    </script>
+  </body>
+</html>

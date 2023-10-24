@@ -169,7 +169,7 @@ class InpaintingModel_DFBM(BaseModel):
 
         self.confidence_mask_layer = ConfidenceDrivenMaskLayer()
 
-        self.netDFBN = DFBN().cuda()
+        self.netDFBN = DFBN().cpu()
         init_weights(self.netDFBN)
         self.model_names = ['DFBN']
         if self.opt.phase == 'test':
@@ -180,8 +180,8 @@ class InpaintingModel_DFBM(BaseModel):
         self.optimizer_G = torch.optim.Adam(self.netDFBN.parameters(), lr=opt.lr, betas=(0.5, 0.9))
         self.optimizers += [self.optimizer_G]
         self.optimizer_D = None
-        self.zeros = torch.zeros((opt.batch_size, 1)).cuda()
-        self.ones = torch.ones((opt.batch_size, 1)).cuda()
+        self.zeros = torch.zeros((opt.batch_size, 1)).cpu()
+        self.ones = torch.ones((opt.batch_size, 1)).cpu()
         self.aeloss = nn.L1Loss()
         self.vggloss = None
         self.G_loss = None
@@ -191,7 +191,7 @@ class InpaintingModel_DFBM(BaseModel):
         self.loss_eta = 5
         self.loss_mu = 0.03
         self.loss_vgg = 1
-        self.BCEloss = nn.BCEWithLogitsLoss().cuda()
+        self.BCEloss = nn.BCEWithLogitsLoss().cpu()
         self.gt, self.gt_local = None, None
         self.mask, self.mask_01 = None, None
         self.rect = None
@@ -208,7 +208,7 @@ class InpaintingModel_DFBM(BaseModel):
 
         self.pred = None
 
-        self.netD = GlobalLocalDiscriminator(3, cnum=opt.d_cnum, act=F.leaky_relu).cuda()
+        self.netD = GlobalLocalDiscriminator(3, cnum=opt.d_cnum, act=F.leaky_relu).cpu()
         init_weights(self.netD)
         self.optimizer_D = torch.optim.Adam(filter(lambda x: x.requires_grad, self.netD.parameters()), lr=opt.lr,
                                             betas=(0.5, 0.9))
@@ -228,7 +228,7 @@ class InpaintingModel_DFBM(BaseModel):
     def initVariables(self):
         self.gt = self.input['gt']
         mask, rect = generate_mask(self.opt.mask_type, self.opt.img_shapes, self.opt.mask_shapes)
-        self.mask_01 = torch.from_numpy(mask).cuda().repeat([self.opt.batch_size, 1, 1, 1])
+        self.mask_01 = torch.from_numpy(mask).cpu().repeat([self.opt.batch_size, 1, 1, 1])
         self.mask = self.confidence_mask_layer(self.mask_01)
         if self.opt.mask_type == 'rect':
             self.rect = [rect[0, 0], rect[0, 1], rect[0, 2], rect[0, 3]]
@@ -325,8 +325,8 @@ class InpaintingModel_DFBM(BaseModel):
                 'completed': self.completed.cpu().detach()}
 
     def evaluate(self, im_in, mask):
-        im_in = torch.from_numpy(im_in).type(torch.FloatTensor).cuda() / 127.5 - 1
-        mask = torch.from_numpy(mask).type(torch.FloatTensor).cuda()
+        im_in = torch.from_numpy(im_in).type(torch.FloatTensor).cpu() / 127.5 - 1
+        mask = torch.from_numpy(mask).type(torch.FloatTensor).cpu()
         im_in = im_in * (1 - mask)
         xin = torch.cat((im_in, mask), 1)
         ret = self.netDFBN(xin) * mask + im_in * (1 - mask)
@@ -334,8 +334,8 @@ class InpaintingModel_DFBM(BaseModel):
         return ret.astype(np.uint8)
     
     def eval(self, im_in, mask):
-        im_in = im_in.unsqueeze(0).cuda()
-        mask = torch.from_numpy(mask).type(torch.FloatTensor).cuda()
+        im_in = im_in.unsqueeze(0).cpu()
+        mask = torch.from_numpy(mask).type(torch.FloatTensor).cpu()
         print(im_in.shape, mask.shape)
         im_in = im_in * (1 - mask)
         xin = torch.cat((im_in, mask), 1)
