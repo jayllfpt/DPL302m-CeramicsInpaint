@@ -20,7 +20,7 @@ def upload():
         # Convert the base64 data to binary
         cropped_image_binary = base64.b64decode(cropped_image_base64.split(',')[1])
 
-        filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + '.png'
+        filename = 'origin.png'
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         # Save the cropped image as a .png file in the "uploads" folder
         with open(filepath, 'wb') as f:
