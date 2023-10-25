@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 import cv2 as cv
 from static.options.test_options import TestOptions
 from static.model.net import InpaintingModel_DFBM
@@ -15,7 +14,7 @@ def m3_preprocessing_image(path:str):
     image = cv.resize(image, (256, 256))
     image = cv.GaussianBlur(image, (7, 7), 0)
     image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv2.imwrite(path_pre_image, image)    
+    cv.imwrite(path_pre_image, image)    
     return image
 
 def gaussian_kernel(size, sigma):
@@ -31,7 +30,7 @@ def convert_image_org(image):
 
 def load_image(path:str):
   m3_preprocessing_image(path)
-  image = cv2.imread(path_pre_image)
+  image = cv.imread(path_pre_image)
   image = np.transpose(image, [2, 0, 1])
   image = np.expand_dims(image, axis=0)
   return image
@@ -41,13 +40,13 @@ def predict(model, image, mask):
   result = np.transpose(result[0][::-1, :, :], [1, 2, 0])
   result = result[:, :, ::-1]
   # result = convert_image_org(result)
-  cv2.imwrite(path_hsv_result, result)
+  cv.imwrite(path_hsv_result, result)
 
 def convert_final_result(path, h = 256, w = 256):
-  image = cv2.imread(path_hsv_result)
+  image = cv.imread(path_hsv_result)
   image = convert_image_org(image)
-  image = cv2.resize(image, (w, h))
-  cv2.imwrite(path, image)
+  image = cv.resize(image, (w, h))
+  cv.imwrite(path, image)
 
 _path_model = "static/50_net_DFBN.pth"
 _path_org_image = "uploads/image_107.PNG"
@@ -65,7 +64,7 @@ def run(path_model = _path_model, path_org_image = _path_org_image,path_masked =
   image = load_image(path_org_image)
   
   # save image with mask
-  _image = cv2.imread(path_org_image)
+  _image = cv.imread(path_org_image)
   h, w = _image.shape[:2]
   if h >= config.img_shapes[0] and w >= config.img_shapes[1]:
       h_start = (h - config.img_shapes[0]) // 2
@@ -74,12 +73,12 @@ def run(path_model = _path_model, path_org_image = _path_org_image,path_masked =
   else:
       t = min(h, w)
       _image = _image[(h - t) // 2:(h - t) // 2 + t, (w - t) // 2:(w - t) // 2 + t, :]
-      _image = cv2.resize(_image, (config.img_shapes[1], config.img_shapes[0]))
+      _image = cv.resize(_image, (config.img_shapes[1], config.img_shapes[0]))
   _image = np.transpose(_image, [2, 0, 1])
   _image = np.expand_dims(_image, axis=0)
   image_vis = _image * (1 - mask) + 255 * mask
   image_vis = np.transpose(image_vis[0][::, :, :], [1, 2, 0])
-  cv2.imwrite(path_masked,  image_vis.astype(np.uint8))
+  cv.imwrite(path_masked,  image_vis.astype(np.uint8))
 
   # predict
   predict(ourModel, image, mask)
