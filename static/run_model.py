@@ -4,6 +4,27 @@ from static.options.test_options import TestOptions
 from static.model.net import InpaintingModel_DFBM
 from static.util.utils import generate_rect_mask
 from time import sleep
+import argparse
+
+_config = {
+  "dataset": "./yesuredata/test",
+  "data_file": "./yesuretxt/text.txt",
+  "test_dir": "./",
+  "load_model_dir": "./checkpoints/yesure/40_net_DFBN.pth",
+  "seed": 1,
+  "gpu_ids": "0",
+  "random_mask": 0,
+  "img_shapes": [256,256,3],
+  "mask_shapes": [128,128],
+  "mask_type": "rect",
+  "test_num": -1,
+  "mode": "save",
+  "phase": "test",
+  "g_cnum": 32,
+  "d_cnum": 32,
+  "model_folder": "hihi"
+}
+
 
 # path temp files
 path_pre_image = r"static/temp0.png"
@@ -55,7 +76,8 @@ _path_result = "uploads/inpainted_result.png"
 
 def run(path_model = _path_model, path_org_image = _path_org_image,path_masked = _path_masked, path_result = _path_result):
   # load model
-  config = config = TestOptions().parse()
+  # config = config = TestOptions().parse()
+  config = argparse.Namespace(**_config)
   ourModel = InpaintingModel_DFBM(opt=config)
   ourModel.load_networks(path_model)
 
