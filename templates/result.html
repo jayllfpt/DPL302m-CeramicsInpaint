@@ -56,8 +56,8 @@
 
     <div class="image-container">
         <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" class="clickable-image">
-        <img src="{{ url_for('uploaded_file', filename=result) }}" alt="Result Image" class="clickable-image">
         <img src="{{ url_for('uploaded_file', filename=masked) }}" alt="Masked Image" id="masked-image">
+        <img src="{{ url_for('uploaded_file', filename=result) }}" alt="Result Image" class="clickable-image">
     </div>
 
     <script>
