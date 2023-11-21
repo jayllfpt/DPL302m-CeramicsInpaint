@@ -10,10 +10,9 @@ This is a web application for [Inpainting Model](https://github.com/jayllfpt/RES
 - Flask
 
 # How to run
-Just clone this repository and run ```python run.py```.
-<p>It is important that your computer must have <b>torchvision with GPU (cuda) enabled</b>. Sorry for this inconvenient, I will upload the version using CPU soon.</p>
-
-![demo](https://github.com/jayllfpt/DPL302m-CreamicsInpaint/blob/main/demo.gif)
+1. Clone this repository.
+2. Install packages using: ```pip install -r requirements.txt```. 
+2. Run ```python app.py```.
 
 # Refs
 - [x] 中文博客(https://blog.csdn.net/h8832077/article/details/105166776)
